@@ -31,7 +31,7 @@ class ChatClient:
             self.__client_socket.connect((self.__host, self.__port))
             self.__connected = True # client is connected
             threading.Thread(target=self.receive_messages, daemon=True).start()
-            self.send_message(f"{self.__nickname} has entered the chat.")
+            self.send_message(f"{self.__nickname} has entered the chat. By using /weather <latitude> <longitude> you can ask for the weather")
         except (socket.error, socket.herror, socket.gaierror, socket.timeout) as se:
             print(f"Socket error: {se}")
         except Exception as e:
