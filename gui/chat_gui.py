@@ -70,8 +70,9 @@ class ChatGUI:
         """
         message = self.chat_message_var.get().strip()
         if message:
-            timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-            full_message = f"{timestamp}  {self.__client.get_nickname()}: {message}"
-            self.__client.send_message(full_message)
+            #timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            #full_message = f"{timestamp}  {self.__client.get_nickname()}: {message}"
+            #self.__client.send_message(full_message)
+            self.__client.send_message(message)
             # https://stackoverflow.com/questions/2260235/how-to-clear-the-entry-widget-after-a-button-is-pressed-in-tkinter
             self.chat_message.delete(0, tk.END)

@@ -44,6 +44,7 @@ class ChatClient:
         :return:
         """
         try:
+            message = f"{self.__nickname}:{message}" # attach nickname to message
             self.__client_socket.send(message.encode("UTF-8"))
 
         except (socket.error, socket.herror, socket.gaierror, socket.timeout) as se:

@@ -3,9 +3,14 @@ This class represents a server for the chat program.
 It manages its clients and starts processes to receive and forward messages to other clients
 author: Matthias Baidinger
 """
-
+import re
 import socket
 import threading
+from datetime import datetime
+
+from client.weather_data import WeatherData
+
+
 class ChatServer:
 
     def __init__(self, host, port):
@@ -68,23 +73,40 @@ class ChatServer:
 
     def __send_messages(self, message, sender):
         """
-        Sends the received message to all  clients
+        Sends the received message to all  clients or weather data to the sender
         :param message: The message to forward
         :param sender: the sender of the message
         :return:
         """
-        for client in self.__clients:
+        nickname, text = message.split(":", 1) # split payload into nickname and text
+        timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
-             try:
-                client.send(message.encode('utf-8'))
-             except socket.error as se:
-                 print(f"Socket error: {se}")
-                 client.close()
-                 self.__clients.remove(client)
-             except Exception as e:
-                 print(f"Error occured while sending messages: {e}")
-                 client.close()
-                 self.__clients.remove(client)
+        match = re.match(r'^/weather\s+(\d+(?:\.\d{1,2})?)\s+(\d+(?:\.\d{1,2})?)\s*$', text) # start with /weather and two floats
+
+        if match:
+            latitude = float(match.group(1))
+            longitude = float(match.group(2))
+            if 0 <= latitude <= 90 and 0 <= longitude <= 180:
+                temperature, weather_desc = WeatherData.get_weather(latitude,longitude)
+                weather_text = f"{timestamp} {nickname}: Temperatur: {temperature} °C  Weathermode: {weather_desc}"
+                sender.send(weather_text.encode('utf-8'))
+
+        else:
+
+            for client in self.__clients:
+
+                try:
+
+                   full_message = f"{timestamp}  {nickname}: {text}"
+                   client.send(full_message.encode('utf-8'))
+                except socket.error as se:
+                    print(f"Socket error: {se}")
+                    client.close()
+                    self.__clients.remove(client)
+                except Exception as e:
+                    print(f"Error occured while sending messages: {e}")
+                    client.close()
+                    self.__clients.remove(client)
 
 
 
